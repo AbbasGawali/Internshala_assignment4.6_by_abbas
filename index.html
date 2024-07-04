@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Student Registration System - By Abbas Gawali</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+      integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+
+  <body>
+    <header>
+      <!-- heading added for the website -->
+      <h1 class="text-center p-1">Student Registration System</h1>
+      <p class="text-center">
+        A System, where user can register the students information
+      </p>
+    </header>
+    <main>
+      <div class="container">
+        <!-- form to take details and add to the table -->
+
+        <!-- todo -> add required in below -->
+
+        <div class="form">
+          <form id="student-form" action="" onsubmit="createData()">
+            <h2 class="f-heading">Student Details</h2>
+            <input
+              name="name"
+              required
+              minlength="3"
+              maxlength="12"
+              type="text"
+              placeholder="Student Name"
+            />
+            <input
+              required
+              name="studId"
+              type="number"
+              max="999"
+              placeholder="Student Id"
+            />
+            <input
+              required
+              maxlength="25"
+              name="email"
+              type="email"
+              placeholder="Email Id"
+            />
+            <input
+              required
+              name="contact"
+              type="number"
+              min="7000000000"
+              max="9999999999"
+              maxlength="10"
+              placeholder="Contact No"
+            />
+            <button id="fbtn" type="submit">Add Student</button>
+          </form>
+        </div>
+        <!-- the data of the students that has been added by the user -->
+
+        <div class="data">
+          <div class="data-heading">
+            <h2>Name</h2>
+            <h2>S Id</h2>
+            <h2>Email</h2>
+            <h2>Contact</h2>
+            <h2>Operation</h2>
+          </div>
+          <div class="data-contents">
+            <!-- dynamic data will appear below  -->
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <script>
+      // get all elements
+      const form = document.getElementById("student-form");
+      let fbtn = document.getElementById("fbtn");
+      const dataContents = document.querySelector(".data-contents");
+      dataContents.style.overflowY = "scroll";
+
+      // student array of objects from local storage
+      const studentData = JSON.parse(localStorage.getItem("studentData")) || [];
+
+      // data creation function
+      const createData = () => {
+        event.preventDefault();
+        // creating new object of new student
+        const newData = {
+          name: form.name.value,
+          email: form.email.value,
+          studId: form.studId.value,
+          contact: form.contact.value,
+        };
+
+        studentData.push(newData);
+        localStorage.setItem("studentData", JSON.stringify(studentData));
+        fbtn.innerText = "Add Student";
+        showData();
+
+        // making form values empty
+        form.name.value = "";
+        form.studId.value = "";
+        form.email.value = "";
+        form.contact.value = "";
+      };
+
+      const editData = (index) => {
+        fbtn.innerText = "Save Edits";
+        let editStudentData = studentData[index];
+        // adding clicked item values to form
+        form.name.value = editStudentData.name;
+        form.studId.value = editStudentData.studId;
+        form.email.value = editStudentData.email;
+        form.contact.value = editStudentData.contact;
+        // deleting that item
+        deleteData(index, true);
+      };
+
+      const deleteData = (index, isEdit = false) => {
+        // checking if function is called from edit function if so directly deleting it 
+        if (isEdit) {
+          studentData.splice(index, 1);
+          localStorage.setItem("studentData", JSON.stringify(studentData));
+          showData();
+        } else {
+          // if function is called from edit button, asking for confirmation
+          if (window.confirm("Are you shure, you want to delete ?")) {
+            studentData.splice(index, 1);
+            localStorage.setItem("studentData", JSON.stringify(studentData));
+            showData();
+          }
+        }
+      };
+
+      // show function for fetching data from local storage and show the data to the user
+      const showData = () => {
+        if (studentData.length <= 0) {
+          dataContents.innerHTML = "<p>No content to display </p>";
+        } else {
+          dataContents.innerHTML = "";
+        }
+
+
+        // mapping the student records that is fetched from the local storage 
+        studentData.map((item, index) => {
+          const dataContent = document.createElement("div");
+          dataContent.classList.add("data-content");
+          dataContent.innerHTML = `
+
+              <p>${item.name}</p>
+              <p>${item.studId}</p>
+              <p>${item.email}</p>
+              <p class="np">${item.contact}</p>
+              <div class="op-btn">
+                <i onclick="editData(${index})" class="fa-solid fa-pen-to-square"> </i
+                ><i onclick="deleteData(${index})" class="fa-solid fa-trash"></i>
+              </div>
+
+          `;
+          dataContents.appendChild(dataContent);
+        });
+      };
+
+      // calling showdata function at the start of the script
+      showData();
+    </script>
+  </body>
+</html>
